@@ -1,0 +1,98 @@
+{% extends "yadisk/base.html" %}
+{% block title %}
+    Просмотр папки
+{% endblock title %}
+{% block content %}
+    <form method="get" action=".">
+        <label for="public_key">
+            <b>URL или public_key папки Яндекс.Диска:</b>
+        </label>
+        <input type="text"
+               id="public_key"
+               name="public_key"
+               {% if public_key %}value="{{ public_key }}"{% endif %}
+               required>
+        <label for="path">
+            <b>Путь:</b>
+        </label>
+        <input type="text"
+               id="path"
+               name="path"
+               {% if path %}value="{{ path }}"{% endif %}>
+        <label for="sort-method">
+            <b>Сортировать по:</b>
+        </label>
+        <select id="sort-method" name="sort">
+            <option value="name" {% if sort == "name" %}selected{% endif %}>Имя</option>
+            <option value="created" {% if sort == "created" %}selected{% endif %}>Дата создания</option>
+            <option value="modified" {% if sort == "modified" %}selected{% endif %}>Дата последнего изменения</option>
+        </select>
+        <label for="sort-reverse">
+            <b>Обратный порядок:</b>
+            <input type="checkbox"
+                   id="sort-reverse"
+                   name="reverse"
+                   value="true"
+                   {% if reverse %}checked="true"{% endif %}>
+        </label>
+        <button type="submit">Открыть</button>
+    </form>
+    {% if error %}
+        <div class="error-message">
+            <p>{{ error }}</p>
+        </div>
+    {% endif %}
+    {% if items %}
+        <ul class="item-list">
+            {% for item in items %}
+                {% if item.type == "file" %}
+                    <li>
+                        <div class="details">
+                            <b>Имя файла:</b> {{ item.name }}
+                            <br>
+                            <br>
+                            <b>Путь в папке:</b> {{ item.path }}
+                            <br>
+                            <br>
+                            <b>Дата загрузки:</b> {{ item.created|date:"H:i:s, j M Y" }}
+                            <br>
+                            <br>
+                            <b>Дата последнего изменения:</b> {{ item.modified|date:"H:i:s, j M Y" }}
+                            <br>
+                            <br>
+                            <a href="{{ item.file }}" download>Скачать</a>
+                        </div>
+                        {% if item.preview %}
+                            <div class="preview">
+                                <strong>Превью:</strong>
+                                <img src="{{ item.preview }}"
+                                     alt="{{ item.name }} preview"
+                                     width=""
+                                     height=""
+                                     class="preview-img">
+                            </div>
+                        {% endif %}
+                    </li>
+                {% elif item.type == "dir" %}
+                    <li>
+                        <div class="details">
+                            <b>Имя папки:</b> {{ item.name }}
+                            <br>
+                            <br>
+                            <b>Путь в папке:</b> {{ item.path }}
+                            <br>
+                            <br>
+                            <b>Дата создания:</b> {{ item.created|date:"H:i:s, j M Y" }}
+                            <br>
+                            <br>
+                            <b>Дата последнего изменения:</b> {{ item.modified|date:"H:i:s, j M Y" }}
+                            <br>
+                            <br>
+                            <a href="{% url "index" %}?public_key={{ public_key }}&path={{ item.path }}&sort={{ sort }}&reverse={{ reverse }}">Открыть</a>
+                        </div>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock content %}
